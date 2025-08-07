@@ -43,3 +43,48 @@ To interact with the financial report via voice, run:
 
     python -m financial_research_agent.mainvoice
 
+## 🐳 Docker & Kubernetes Deployment
+
+For a production-ready deployment with web interface, use our Docker and Kubernetes setup:
+
+### 🚀 Quick Deploy to Docker Desktop
+
+```bash
+# 1. Build the Docker image
+docker build -t financial-agent:latest .
+
+# 2. Configure your OpenAI API key
+cp k8s/secret.yaml.template k8s/secret.yaml
+# Edit k8s/secret.yaml and add your API key
+
+# 3. Deploy to Kubernetes
+kubectl apply -f k8s/
+
+# 4. Access the web interface
+kubectl port-forward -n financial-agent $(kubectl get pods -n financial-agent -l app=financial-agent-web -o jsonpath='{.items[0].metadata.name}') 8501:8501
+```
+
+Then open: **http://localhost:8501**
+
+### 🌐 Web Interface Features
+
+- **📊 Interactive Dashboard**: Professional Streamlit interface
+- **🔍 Query Input**: Natural language financial research
+- **📌 Example Queries**: Pre-built common analyses
+- **⚡ Real-time Analysis**: Powered by OpenAI's latest models
+- **📄 Report Generation**: Comprehensive markdown reports
+- **📋 Report History**: Access previous analyses
+
+### 📚 Detailed Documentation
+
+For complete setup instructions, troubleshooting, and advanced configuration:
+- **[Docker & Kubernetes Guide](README_DOCKER.md)** - Comprehensive deployment documentation
+- **[Kubernetes Manifests](k8s/)** - All K8s configuration files and templates
+- **[Setup Instructions](k8s/README.md)** - Step-by-step deployment guide
+
+### 🔧 Requirements
+
+- Docker Desktop with Kubernetes enabled
+- OpenAI API key with sufficient credits
+- kubectl configured for docker-desktop context
+
