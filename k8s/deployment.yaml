@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: financial-agent
+  namespace: financial-agent
+  labels:
+    app: financial-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: financial-agent
+  template:
+    metadata:
+      labels:
+        app: financial-agent
+    spec:
+      containers:
+      - name: financial-agent
+        image: financial-agent:latest
+        imagePullPolicy: Never  # Use local Docker Desktop images
+        envFrom:
+        - configMapRef:
+            name: financial-agent-config
+        - secretRef:
+            name: openai-credentials
+        ports:
+        - containerPort: 8000
+          name: mcp-server
+        volumeMounts:
+        - name: reports-storage
+          mountPath: /app/reports
+        - name: logs-storage
+          mountPath: /app/logs
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        # Interactive mode for testing
+        stdin: true
+        tty: true
+        # Health check
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: reports-storage
+        persistentVolumeClaim:
+          claimName: financial-agent-reports-pvc
+      - name: logs-storage
+        emptyDir: {}
+      restartPolicy: Always

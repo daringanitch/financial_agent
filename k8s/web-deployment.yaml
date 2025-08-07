@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: financial-agent-web
+  namespace: financial-agent
+  labels:
+    app: financial-agent-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: financial-agent-web
+  template:
+    metadata:
+      labels:
+        app: financial-agent-web
+    spec:
+      containers:
+      - name: financial-agent-web
+        image: financial-agent:latest
+        imagePullPolicy: Never
+        command: ["uv", "run", "streamlit", "run", "web_app.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true", "--server.runOnSave=false", "--server.allowRunOnSave=false"]
+        envFrom:
+        - configMapRef:
+            name: financial-agent-config
+        - secretRef:
+            name: openai-credentials
+        ports:
+        - containerPort: 8501
+          name: streamlit
+        volumeMounts:
+        - name: reports-storage
+          mountPath: /tmp/financial-agent-reports
+        - name: logs-storage
+          mountPath: /app/logs
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        # Health check
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8501
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8501
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: reports-storage
+        persistentVolumeClaim:
+          claimName: financial-agent-reports-pvc
+      - name: logs-storage
+        emptyDir: {}
+      restartPolicy: Always

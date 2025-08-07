@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: financial-agent-config
+  namespace: financial-agent
+data:
+  PYTHONPATH: "/app"
+  PYTHONUNBUFFERED: "1"
+  OPENAI_AGENTS_DISABLE_TRACING: "false"
