@@ -1,0 +1,103 @@
+{{- if .Values.webInterface.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "financial-agent.fullname" . }}-web
+  namespace: {{ include "financial-agent.namespace" . }}
+  labels:
+    {{- include "financial-agent.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  replicas: {{ .Values.webInterface.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "financial-agent.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "financial-agent.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        app.kubernetes.io/component: web
+    spec:
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ include "financial-agent.serviceAccountName" . }}
+      containers:
+      - name: financial-agent-web
+        image: {{ include "financial-agent.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 10 }}
+        command: 
+        - "uv"
+        - "run"
+        - "streamlit"
+        - "run"
+        - "web_app.py"
+        - "--server.port={{ .Values.webInterface.streamlit.port }}"
+        - "--server.address={{ .Values.webInterface.streamlit.address }}"
+        - "--server.headless={{ .Values.webInterface.streamlit.headless }}"
+        - "--server.runOnSave={{ .Values.webInterface.streamlit.runOnSave }}"
+        - "--server.allowRunOnSave={{ .Values.webInterface.streamlit.allowRunOnSave }}"
+        envFrom:
+        - configMapRef:
+            name: {{ include "financial-agent.fullname" . }}-config
+        - secretRef:
+            name: {{ include "financial-agent.fullname" . }}-credentials
+        ports:
+        - containerPort: {{ .Values.webInterface.streamlit.port }}
+          name: streamlit
+        volumeMounts:
+        - name: reports-storage
+          mountPath: /tmp/financial-agent-reports
+        - name: logs-storage
+          mountPath: /app/logs
+        resources:
+          {{- toYaml .Values.webInterface.resources | nindent 10 }}
+        {{- if .Values.webInterface.livenessProbe.enabled }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.webInterface.livenessProbe.httpGet.path }}
+            port: {{ .Values.webInterface.livenessProbe.httpGet.port }}
+          initialDelaySeconds: {{ .Values.webInterface.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.webInterface.livenessProbe.periodSeconds }}
+        {{- end }}
+        {{- if .Values.webInterface.readinessProbe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.webInterface.readinessProbe.httpGet.path }}
+            port: {{ .Values.webInterface.readinessProbe.httpGet.port }}
+          initialDelaySeconds: {{ .Values.webInterface.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.webInterface.readinessProbe.periodSeconds }}
+        {{- end }}
+      volumes:
+      - name: reports-storage
+        {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ include "financial-agent.fullname" . }}-reports-pvc
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      - name: logs-storage
+        emptyDir: {}
+      restartPolicy: Always
+{{- end }}

@@ -1,0 +1,98 @@
+{{- if .Values.financialAgent.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "financial-agent.fullname" . }}
+  namespace: {{ include "financial-agent.namespace" . }}
+  labels:
+    {{- include "financial-agent.labels" . | nindent 4 }}
+    app.kubernetes.io/component: cli
+spec:
+  replicas: {{ .Values.financialAgent.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "financial-agent.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: cli
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "financial-agent.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        app.kubernetes.io/component: cli
+    spec:
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ include "financial-agent.serviceAccountName" . }}
+      containers:
+      - name: financial-agent
+        image: {{ include "financial-agent.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 10 }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "financial-agent.fullname" . }}-config
+        - secretRef:
+            name: {{ include "financial-agent.fullname" . }}-credentials
+        ports:
+        - containerPort: 8000
+          name: mcp-server
+        volumeMounts:
+        - name: reports-storage
+          mountPath: /app/reports
+        - name: logs-storage
+          mountPath: /app/logs
+        resources:
+          {{- toYaml .Values.financialAgent.resources | nindent 10 }}
+        {{- if .Values.financialAgent.livenessProbe.enabled }}
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: {{ .Values.financialAgent.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.financialAgent.livenessProbe.periodSeconds }}
+        {{- end }}
+        {{- if .Values.financialAgent.readinessProbe.enabled }}
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: {{ .Values.financialAgent.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.financialAgent.readinessProbe.periodSeconds }}
+        {{- end }}
+        stdin: true
+        tty: true
+      volumes:
+      - name: reports-storage
+        {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ include "financial-agent.fullname" . }}-reports-pvc
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      - name: logs-storage
+        emptyDir: {}
+      restartPolicy: Always
+{{- end }}

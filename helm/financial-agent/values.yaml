@@ -1,0 +1,159 @@
+# Default values for financial-agent
+# This is a YAML-formatted file.
+
+# Global configuration
+global:
+  imageRegistry: ""
+
+# Image configuration
+image:
+  repository: financial-agent
+  pullPolicy: Never  # Use local images for Docker Desktop
+  tag: "latest"
+
+# OpenAI configuration
+openai:
+  # REQUIRED: Set your OpenAI API key
+  apiKey: ""
+  # Optional: OpenAI organization ID
+  orgId: ""
+  # Optional: OpenAI project ID  
+  projectId: ""
+  # Disable tracing (true/false)
+  disableTracing: false
+
+# Application configuration
+app:
+  pythonPath: "/app"
+  pythonUnbuffered: "1"
+
+# Main financial agent (CLI)
+financialAgent:
+  enabled: true
+  replicaCount: 1
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  
+  # Health checks
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 30
+  
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 10
+
+# Web interface 
+webInterface:
+  enabled: true
+  replicaCount: 1
+  
+  # Service configuration
+  service:
+    type: NodePort
+    port: 8501
+    nodePort: 30001
+    targetPort: 8501
+  
+  # Streamlit configuration
+  streamlit:
+    port: 8501
+    address: "0.0.0.0"
+    headless: true
+    runOnSave: false
+    allowRunOnSave: false
+    enableCORS: false
+    gatherUsageStats: false
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m  
+      memory: 512Mi
+  
+  # Health checks
+  livenessProbe:
+    enabled: true
+    httpGet:
+      path: /
+      port: 8501
+    initialDelaySeconds: 30
+    periodSeconds: 30
+  
+  readinessProbe:
+    enabled: true
+    httpGet:
+      path: /
+      port: 8501
+    initialDelaySeconds: 10
+    periodSeconds: 10
+
+# MCP server configuration
+mcpServer:
+  service:
+    type: NodePort
+    port: 8000
+    nodePort: 30000
+    targetPort: 8000
+
+# Storage configuration
+persistence:
+  enabled: true
+  
+  # Reports storage
+  reports:
+    storageClass: "hostpath"
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    hostPath: "/tmp/financial-agent-reports"
+
+# Security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Service account
+serviceAccount:
+  # Whether to create a service account
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use
+  name: ""
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod labels
+podLabels: {}
+
+# Namespace
+namespace: 
+  create: true
+  name: "financial-agent"

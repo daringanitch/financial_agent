@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "financial-agent.fullname" . }}-service
+  namespace: {{ include "financial-agent.namespace" . }}
+  labels:
+    {{- include "financial-agent.labels" . | nindent 4 }}
+    app.kubernetes.io/component: cli
+spec:
+  type: {{ .Values.mcpServer.service.type }}
+  selector:
+    {{- include "financial-agent.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: cli
+  ports:
+  - port: {{ .Values.mcpServer.service.port }}
+    targetPort: {{ .Values.mcpServer.service.targetPort }}
+    {{- if eq .Values.mcpServer.service.type "NodePort" }}
+    nodePort: {{ .Values.mcpServer.service.nodePort }}
+    {{- end }}
+    protocol: TCP
+    name: mcp-server

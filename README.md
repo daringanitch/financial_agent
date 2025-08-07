@@ -91,6 +91,28 @@ kubectl port-forward -n financial-agent $(kubectl get pods -n financial-agent -l
 
 Then open: **http://localhost:8501**
 
+### ⚡ Helm Deployment (Recommended)
+
+For the most flexible and production-ready deployment:
+
+```bash
+# 1. Build the Docker image
+docker build -t financial-agent:latest .
+
+# 2. Install with Helm
+helm install financial-agent ./helm/financial-agent \
+  --set openai.apiKey="your-openai-api-key-here"
+
+# 3. Access the web interface
+kubectl port-forward -n financial-agent service/financial-agent-web 8501:8501
+```
+
+**Benefits of Helm deployment:**
+- **🎛️ Configurable**: Extensive configuration options
+- **🔄 Upgradeable**: Easy updates and rollbacks
+- **📦 Packaged**: Professional Kubernetes package management
+- **🛡️ Secure**: Proper secret and security context management
+
 ### 🌐 Web Interface Features
 
 - **📊 Interactive Dashboard**: Professional Streamlit interface
@@ -104,7 +126,8 @@ Then open: **http://localhost:8501**
 
 For complete setup instructions, troubleshooting, and advanced configuration:
 - **[Docker & Kubernetes Guide](README_DOCKER.md)** - Comprehensive deployment documentation
-- **[Kubernetes Manifests](k8s/)** - All K8s configuration files and templates
+- **[Helm Chart](helm/financial-agent/)** - Professional Kubernetes package management
+- **[Kubernetes Manifests](k8s/)** - Raw K8s configuration files and templates  
 - **[Setup Instructions](k8s/README.md)** - Step-by-step deployment guide
 
 ### 🔧 Prerequisites

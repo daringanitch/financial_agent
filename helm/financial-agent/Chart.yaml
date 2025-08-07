@@ -1,0 +1,22 @@
+apiVersion: v2
+name: financial-agent
+description: A Helm chart for deploying the Financial Research Agent with web interface
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+home: https://github.com/daringanitch/financial_agent
+sources:
+  - https://github.com/daringanitch/financial_agent
+maintainers:
+  - name: Darin Ganitch
+    email: daringanitch@example.com
+keywords:
+  - financial
+  - ai
+  - openai
+  - agents
+  - research
+  - streamlit
+annotations:
+  category: AI/ML
+  licenses: MIT

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "financial-agent.fullname" . }}-config
+  namespace: {{ include "financial-agent.namespace" . }}
+  labels:
+    {{- include "financial-agent.labels" . | nindent 4 }}
+data:
+  PYTHONPATH: {{ .Values.app.pythonPath | quote }}
+  PYTHONUNBUFFERED: {{ .Values.app.pythonUnbuffered | quote }}
+  OPENAI_AGENTS_DISABLE_TRACING: {{ .Values.openai.disableTracing | quote }}

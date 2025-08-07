@@ -1,0 +1,35 @@
+{{- if .Values.persistence.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "financial-agent.fullname" . }}-reports-pv
+  labels:
+    {{- include "financial-agent.labels" . | nindent 4 }}
+spec:
+  capacity:
+    storage: {{ .Values.persistence.reports.size }}
+  accessModes:
+    - {{ .Values.persistence.reports.accessMode }}
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.persistence.reports.storageClass }}
+  hostPath:
+    path: {{ .Values.persistence.reports.hostPath }}
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "financial-agent.fullname" . }}-reports-pvc
+  namespace: {{ include "financial-agent.namespace" . }}
+  labels:
+    {{- include "financial-agent.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.reports.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.reports.size }}
+  storageClassName: {{ .Values.persistence.reports.storageClass }}
+{{- end }}

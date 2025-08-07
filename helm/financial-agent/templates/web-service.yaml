@@ -1,0 +1,23 @@
+{{- if .Values.webInterface.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "financial-agent.fullname" . }}-web
+  namespace: {{ include "financial-agent.namespace" . }}
+  labels:
+    {{- include "financial-agent.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  type: {{ .Values.webInterface.service.type }}
+  selector:
+    {{- include "financial-agent.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+  ports:
+  - port: {{ .Values.webInterface.service.port }}
+    targetPort: {{ .Values.webInterface.service.targetPort }}
+    {{- if eq .Values.webInterface.service.type "NodePort" }}
+    nodePort: {{ .Values.webInterface.service.nodePort }}
+    {{- end }}
+    protocol: TCP
+    name: streamlit-web
+{{- end }}
