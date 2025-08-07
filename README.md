@@ -18,44 +18,55 @@ This project is a financial research agent that allows users to generate financi
 
 ## Prerequisites
 
-Ensure you have Python 10+ installed. It is recommended to create and activate a virtual environment before proceeding.
+### 📦 Local Development Prerequisites
 
-Then unsure to set up you python environement:
+- **Python 3.9+** (Python 3.10+ recommended)
+- **OpenAI API Key** with sufficient credits
+- **Git** for cloning the repository
+- **Virtual Environment** (recommended for isolation)
 
-   `python -m venv .venv`<br>
-   `source .venv/bin/activate`
+### 🐳 Kubernetes Deployment Prerequisites
 
-## Installation
+- **Docker Desktop** with Kubernetes enabled
+- **kubectl** configured for docker-desktop context
+- **OpenAI API Key** with sufficient credits
+- **Git** for cloning the repository
 
-1. **Install requirements:**
-   To install the necessary dependencies, use the following command:
+## Local Installation
 
-   ```bash
-   pip install -r requirements.txt
+### 1. **Setup Python Environment**
+Create and activate a virtual environment:
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
 
-2. **Install dependencies:**
-Install dependencies: After installing the requirements, run the following command to synchronize the project dependencies:
+### 2. **Install Dependencies**
+Install the necessary dependencies:
+```bash
+pip install -r requirements.txt
+make sync
+pip install openai-agents
+```
 
-   ```bash
-   make sync
+### 3. **Configure OpenAI API Key**
+Set your OpenAI API key:
+```bash
+export OPENAI_API_KEY="your_api_key_here"
+# On Windows: set OPENAI_API_KEY=your_api_key_here
+```
 
-3. **Install OpenAI agents:**
-To install the openai-agents package, run:
-    ```bash
-    pip install openai-agents
+### 4. **Generate Financial Reports**
+Run the main financial research agent:
+```bash
+python -m financial_research_agent.main
+```
 
-4- **Generate the financial report:**
-Set your OpenAI key first:
-   
-      $env:OPENAI_API_KEY="your_api_key_here"
-Then use the following command:
-
-    python -m financial_research_agent.main
-
-5- **Chat with voice to interact with the report:**
-To interact with the financial report via voice, run:
-
-    python -m financial_research_agent.mainvoice
+### 5. **Voice Chat Interface**
+To interact with reports via voice:
+```bash
+python -m financial_research_agent.mainvoice
+```
 
 ## 🐳 Docker & Kubernetes Deployment
 
@@ -96,9 +107,7 @@ For complete setup instructions, troubleshooting, and advanced configuration:
 - **[Kubernetes Manifests](k8s/)** - All K8s configuration files and templates
 - **[Setup Instructions](k8s/README.md)** - Step-by-step deployment guide
 
-### 🔧 Requirements
+### 🔧 Prerequisites
 
-- Docker Desktop with Kubernetes enabled
-- OpenAI API key with sufficient credits
-- kubectl configured for docker-desktop context
+Ensure you have the [Kubernetes Deployment Prerequisites](#-kubernetes-deployment-prerequisites) installed and configured before proceeding.
 
