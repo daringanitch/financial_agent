@@ -1,6 +1,20 @@
 # Financial Research Agent
 
-This project allows you to generate financial reports and interact with them through voice chat.
+This project is a financial research agent that allows users to generate financial reports and interact with them through voice chat. It is built on top of the OpenAI Agents SDK and provides a web-based interface for querying and analyzing financial data.
+
+## 🎯 Main Function Points
+
+* **Generate financial reports** - Comprehensive AI-powered financial analysis and research
+* **Interact with reports through voice chat** - Natural language voice interaction with generated reports
+* **Provide a web-based interface** - Professional Streamlit dashboard for querying and analyzing financial data
+* **Offer production-ready deployment** - Complete Docker and Kubernetes setup for scalable deployment
+
+## 🛠️ Technology Stack
+
+* **Python** - Core programming language and runtime
+* **OpenAI Agents SDK** - Multi-agent AI framework for orchestrated financial research
+* **Streamlit** - Interactive web interface for financial queries and report visualization
+* **Docker and Kubernetes** - Containerized deployment for production environments
 
 ## Prerequisites
 
